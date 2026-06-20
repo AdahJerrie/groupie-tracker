@@ -39,7 +39,7 @@ func main() {
 
 	artists = append(artists, artist4)
 
-	for i, artiste := range artists {
-		fmt.Printf("%d: %s (since %d)\n", i, artiste.Name, artiste.CreationDate)
+	for i, artist := range artists {
+		fmt.Printf("%d: %s (since %d)\n", i, artist.Name, artist.CreationDate)
 	}
 }
