@@ -1,34 +1,49 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
-	//"groupie/parts"
+	"io"
+	"log"
+	"net/http"
 )
 
+type Artist struct {
+	ID           int      `json:"id"`
+	Image        string   `json:"image"`
+	Name         string   `json:"name"`
+	Members      []string `json:"members"`
+	CreationDate int      `json:"creationDate"`
+	FirstAlbum   string   `json:"firstAlbum"`
+}
+
 func main() {
+	artistsDetails, err := FetchArtists("https://groupietrackers.herokuapp.com/api/artists")
+	if err != nil {
+		log.Println(err)
+	}
 
-	// getartist := parts.GetArtist()
+	for i, artist := range artistsDetails {
+		fmt.Printf("%d %+v\n", i, artist.Name)
+	}
+}
 
-	// for i, artist := range getartist {
-	// 	fmt.Printf("%d: %s (since %d)\n", i, artist.Name, artist.CreationDate)
-	// }
+func FetchArtists(url string) ([]Artist, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, fmt.Errorf("fetching artists: %w", err)
+	}
+	defer resp.Body.Close()
 
-	// related := parts.Relation()
+	byteData, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("reading response body: %w", err)
+	}
 
-	// for _, value := range related {
+	var artists []Artist
+	if err := json.Unmarshal(byteData, &artists); err != nil {
+		return nil, fmt.Errorf("decoding artists JSON: %w", err)
+	}
 
-	// 	fmt.Println(value)
-	// }
-
-	// pointer := parts.PointAddr()
-	// fmt.Println(*pointer)
-
-	year := 2026
-	yearPtr := &year
-	fmt.Println(yearPtr)
-	fmt.Println(*yearPtr)
-
-	*yearPtr = 2021
-	fmt.Println(year)
-
+	return artists, nil
 }
