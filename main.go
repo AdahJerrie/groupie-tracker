@@ -17,6 +17,16 @@ type Artist struct {
 	FirstAlbum   string   `json:"firstAlbum"`
 }
 
+type Location struct {
+	ID        int      `json:"id"`
+	Locations []string `json:"locations"`
+	Dates     string   `json:"dates"`
+}
+
+type LocationIndex struct {
+	Index []Location `json:"index"`
+}
+
 func main() {
 	artistsDetails, err := FetchArtists("https://groupietrackers.herokuapp.com/api/artists")
 	if err != nil {
@@ -24,7 +34,7 @@ func main() {
 	}
 
 	for i, artist := range artistsDetails {
-		fmt.Printf("%d %+v\n", i, artist.Name)
+		fmt.Printf("%d %+v\n", i, artist)
 	}
 }
 
