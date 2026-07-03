@@ -27,6 +27,22 @@ type LocationIndex struct {
 	Index []Location `json:"index"`
 }
 
+type Dates struct {
+	ID    int      `json:"id"`
+	Dates []string `json:"dates"`
+}
+type DatesIndex struct {
+	Index []Dates `json:"index"`
+}
+
+type Relation struct {
+	ID             int                 `json:"id"`
+	DatesLocations map[string][]string `json:"datesLocations"`
+}
+type RelationIndex struct {
+	Index []Relation `json:"index"`
+}
+
 func main() {
 	artistsDetails, err := FetchArtists("https://groupietrackers.herokuapp.com/api/artists")
 	if err != nil {
@@ -40,12 +56,32 @@ func main() {
 		return
 	}
 
+	dates, err := FetchDates("https://groupietrackers.herokuapp.com/api/dates")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	relations, err := FetchRelation("https://groupietrackers.herokuapp.com/api/relation")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	for i, date := range dates.Index {
+		fmt.Printf("%d %s\n", i, date.Dates)
+	}
+
+	for i, relate := range relations.Index {
+		fmt.Printf("%d %v\n", i, relate.DatesLocations)
+	}
+
 	for i, artist := range artistsDetails {
 		fmt.Printf("%d %+v\n", i, artist)
 	}
 
 	for i, location := range locateDetails.Index {
-		fmt.Printf("%d %s\n", i, location.Locations[0:5])
+		fmt.Printf("%d %s\n", i, location.Locations)
 	}
 }
 
@@ -86,4 +122,42 @@ func FetchLocations(url string) (LocationIndex, error) {
 		return LocationIndex{}, fmt.Errorf("decoding locate JSON: %w", err)
 	}
 	return locate, nil
+}
+
+func FetchRelation(url string) (RelationIndex, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return RelationIndex{}, fmt.Errorf("fetching relation: %w", err)
+	}
+	defer resp.Body.Close()
+
+	byteBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return RelationIndex{}, fmt.Errorf("reading response body: %w", err)
+	}
+
+	var relations RelationIndex
+	if err := json.Unmarshal(byteBody, &relations); err != nil {
+		return RelationIndex{}, fmt.Errorf("decoding relation JSON: %w", err)
+	}
+	return relations, nil
+}
+
+func FetchDates(url string) (DatesIndex, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return DatesIndex{}, fmt.Errorf("fetching dates: %w", err)
+	}
+	defer resp.Body.Close()
+
+	bodyByte, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return DatesIndex{}, fmt.Errorf("reading response body: %w", err)
+	}
+
+	var dates DatesIndex
+	if err := json.Unmarshal(bodyByte, &dates); err != nil {
+		return DatesIndex{}, fmt.Errorf("decoding date JSON: %w", err)
+	}
+	return dates, nil
 }

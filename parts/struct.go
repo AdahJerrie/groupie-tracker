@@ -1,7 +1,7 @@
 package parts
 
 type Artist struct {
-	Name         string `json: "name"`
+	Name         string
 	CreationDate int
 	Members      []string
 }
