@@ -44,6 +44,14 @@ type RelationIndex struct {
 }
 
 func main() {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", HomeHandler)
+	mux.HandleFunc("/artists", ArtistsHandler)
+
+	log.Println("server started")
+	if err := http.ListenAndServe(":8080", mux); err != nil {
+		log.Fatal(err)
+	}
 	artistsDetails, err := FetchArtists("https://groupietrackers.herokuapp.com/api/artists")
 	if err != nil {
 		log.Println(err)
@@ -160,4 +168,17 @@ func FetchDates(url string) (DatesIndex, error) {
 		return DatesIndex{}, fmt.Errorf("decoding date JSON: %w", err)
 	}
 	return dates, nil
+}
+
+func HomeHandler(w http.ResponseWriter, req *http.Request) {
+	if req.URL.Path != "/" {
+		http.NotFound(w, req)
+		return
+	}
+
+	fmt.Fprint(w, "Welcome to Groupie Trackers")
+}
+
+func ArtistsHandler(w http.ResponseWriter, req *http.Request) {
+	fmt.Fprintln(w, "Artists page — coming soon")
 }
