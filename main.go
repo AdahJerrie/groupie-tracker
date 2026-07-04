@@ -45,51 +45,12 @@ type RelationIndex struct {
 
 func main() {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", HomeHandler)
-	mux.HandleFunc("/artists", ArtistsHandler)
+	mux.HandleFunc("/", homeHandler)
+	mux.HandleFunc("/artists", artistsHandler)
 
 	log.Println("server started")
 	if err := http.ListenAndServe(":8080", mux); err != nil {
 		log.Fatal(err)
-	}
-	artistsDetails, err := FetchArtists("https://groupietrackers.herokuapp.com/api/artists")
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	locateDetails, err := FetchLocations("https://groupietrackers.herokuapp.com/api/locations")
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	dates, err := FetchDates("https://groupietrackers.herokuapp.com/api/dates")
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	relations, err := FetchRelation("https://groupietrackers.herokuapp.com/api/relation")
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	for i, date := range dates.Index {
-		fmt.Printf("%d %s\n", i, date.Dates)
-	}
-
-	for i, relate := range relations.Index {
-		fmt.Printf("%d %v\n", i, relate.DatesLocations)
-	}
-
-	for i, artist := range artistsDetails {
-		fmt.Printf("%d %+v\n", i, artist)
-	}
-
-	for i, location := range locateDetails.Index {
-		fmt.Printf("%d %s\n", i, location.Locations)
 	}
 }
 
@@ -170,7 +131,7 @@ func FetchDates(url string) (DatesIndex, error) {
 	return dates, nil
 }
 
-func HomeHandler(w http.ResponseWriter, req *http.Request) {
+func homeHandler(w http.ResponseWriter, req *http.Request) {
 	if req.URL.Path != "/" {
 		http.NotFound(w, req)
 		return
@@ -179,6 +140,6 @@ func HomeHandler(w http.ResponseWriter, req *http.Request) {
 	fmt.Fprint(w, "Welcome to Groupie Trackers")
 }
 
-func ArtistsHandler(w http.ResponseWriter, req *http.Request) {
+func artistsHandler(w http.ResponseWriter, req *http.Request) {
 	fmt.Fprintln(w, "Artists page — coming soon")
 }
