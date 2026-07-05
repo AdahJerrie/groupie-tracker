@@ -43,12 +43,41 @@ type RelationIndex struct {
 	Index []Relation `json:"index"`
 }
 
+var (
+	artists   []Artist
+	locations LocationIndex
+	dates     DatesIndex
+	relations RelationIndex
+)
+
 func main() {
+
+	var err error
+	artists, err = FetchArtists("https://groupietrackers.herokuapp.com/api/artists")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	locations, err = FetchLocations("https://groupietrackers.herokuapp.com/api/locations")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	dates, err = FetchDates("https://groupietrackers.herokuapp.com/api/dates")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	relations, err = FetchRelation("https://groupietrackers.herokuapp.com/api/relation")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", homeHandler)
 	mux.HandleFunc("/artists", artistsHandler)
 
-	log.Println("server started")
+	log.Println("starting server on :8080")
 	if err := http.ListenAndServe(":8080", mux); err != nil {
 		log.Fatal(err)
 	}
@@ -60,6 +89,10 @@ func FetchArtists(url string) ([]Artist, error) {
 		return nil, fmt.Errorf("fetching artists: %w", err)
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status fetching artists: %s", resp.Status)
+	}
 
 	byteData, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -81,6 +114,10 @@ func FetchLocations(url string) (LocationIndex, error) {
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode != http.StatusOK {
+		return LocationIndex{}, fmt.Errorf("unexpected status fetching locations: %s", resp.Status)
+	}
+
 	respByte, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return LocationIndex{}, fmt.Errorf("reading response body: %w", err)
@@ -99,6 +136,10 @@ func FetchRelation(url string) (RelationIndex, error) {
 		return RelationIndex{}, fmt.Errorf("fetching relation: %w", err)
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return RelationIndex{}, fmt.Errorf("unexpected status fetching relation: %s", resp.Status)
+	}
 
 	byteBody, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -119,6 +160,10 @@ func FetchDates(url string) (DatesIndex, error) {
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode != http.StatusOK {
+		return DatesIndex{}, fmt.Errorf("unexpected status fetching date: %s", resp.Status)
+	}
+
 	bodyByte, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return DatesIndex{}, fmt.Errorf("reading response body: %w", err)
@@ -136,10 +181,29 @@ func homeHandler(w http.ResponseWriter, req *http.Request) {
 		http.NotFound(w, req)
 		return
 	}
+	if req.Method != http.MethodGet {
+		w.Header().Set("Allow", "GET")
+		http.Error(w, "405 method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 
 	fmt.Fprint(w, "Welcome to Groupie Trackers")
 }
 
 func artistsHandler(w http.ResponseWriter, req *http.Request) {
-	fmt.Fprintln(w, "Artists page — coming soon")
+	if req.Method != http.MethodGet {
+		w.Header().Set("Allow", "GET")
+		http.Error(w, "405 method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+
+	fmt.Fprintln(w, "Artists page")
+
+	for i, artist := range artists {
+		fmt.Fprintf(w, "%d %v\n", i, artist.Name)
+	}
 }
