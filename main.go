@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"io"
 	"log"
 	"net/http"
@@ -50,9 +51,15 @@ var (
 	relations RelationIndex
 )
 
+var tmpl *template.Template
+
 func main() {
 
 	var err error
+	tmpl, err = template.ParseFiles("templates/index.html")
+	if err != nil {
+		log.Fatal(err)
+	}
 	artists, err = FetchArtists("https://groupietrackers.herokuapp.com/api/artists")
 	if err != nil {
 		log.Fatal(err)
@@ -187,9 +194,11 @@ func homeHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	fmt.Fprint(w, "Welcome to Groupie Trackers")
+	if err := tmpl.Execute(w, artists); err != nil {
+		log.Printf("executing template: %v", err)
+	}
 }
 
 func artistsHandler(w http.ResponseWriter, req *http.Request) {
