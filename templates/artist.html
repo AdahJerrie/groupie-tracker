@@ -7,7 +7,25 @@
 </head>
 <body>
     
-    <h1>Artist:</h1>
+    <h1>{{ .Artist.Name}}</h1>
+    <br>
+    <h3>Created in: {{.Artist.CreationDate}}</h3>
+    <br>
+    <h3>First Album released in: {{.Artist.FirstAlbum}}</h3>
+
+    <h3>Band members</h3>
+    <ul>
+        {{ range .Artist.Members }}
+            <li>{{ . }}</li>
+        {{end}}
+    </ul>
+
+    <h3>Concert dates</h3>
+    <ul>
+        {{ range $location, $dates := .Relation.DatesLocations }}
+            <li><p>{{ $location }}: {{ range $dates }}{{ . }} {{ end }}</p></li>
+        {{ end }}
+    </ul>
     
 </body>
 </html>

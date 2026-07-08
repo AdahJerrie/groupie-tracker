@@ -9,7 +9,7 @@
     <h1>welcome to Groupie Trackers</h1>
     <ul>
         {{ range . }}
-        <li><a href="http://localhost:8080/artist?id={{ .ID }}">{{ .Name }}</a>(since {{ .CreationDate }})</li>
+        <li><a href="/artist?id={{ .ID }}">{{ .Name }}</a>(since {{ .CreationDate }})</li>
         {{end}}
     </ul>
     

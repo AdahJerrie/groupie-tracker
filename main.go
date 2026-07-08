@@ -53,9 +53,8 @@ var (
 )
 
 type ArtistPageData struct {
-	ID            int
-	Artist_info   Artist
-	Date_Location map[string][]string
+	Artist   Artist
+	Relation Relation
 }
 
 var tmpl *template.Template
@@ -225,23 +224,52 @@ func artistsHandler(w http.ResponseWriter, req *http.Request) {
 
 func artistHandler(w http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodGet {
+		w.Header().Set("Allow", "GET")
 		http.Error(w, "405 method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	if req.URL.Path != "/artist" {
-		http.NotFound(w, req)
 		return
 	}
 
 	id := req.URL.Query().Get("id")
-	id_int, err := strconv.Atoi(id)
+	idInt, err := strconv.Atoi(id)
 	if err != nil {
 		http.Error(w, "error converting id", http.StatusBadRequest)
 		return
 	}
-	data := ArtistPageData{
-		ID: id_int,
+
+	var foundArtist Artist
+	var artistFound = false
+	for _, artist := range artists {
+		if artist.ID == idInt {
+			foundArtist = artist
+			artistFound = true
+			break
+		}
 	}
+	if !artistFound {
+		http.NotFound(w, req)
+		return
+	}
+
+	var foundRelation Relation
+	var relationFound = false
+	for _, relation := range relations.Index {
+		if relation.ID == idInt {
+			foundRelation = relation
+			relationFound = true
+			break
+		}
+	}
+	if !relationFound {
+		http.NotFound(w, req)
+		return
+	}
+
+	data := ArtistPageData{
+		Artist:   foundArtist,
+		Relation: foundRelation,
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
 	if err := tmpl.ExecuteTemplate(w, "artist.html", data); err != nil {
 		log.Printf("executing template: %v", err)
