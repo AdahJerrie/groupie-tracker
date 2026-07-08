@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 type Artist struct {
@@ -51,15 +52,19 @@ var (
 	relations RelationIndex
 )
 
+type ArtistPageData struct {
+	ID            int
+	Artist_info   Artist
+	Date_Location map[string][]string
+}
+
 var tmpl *template.Template
 
 func main() {
 
 	var err error
-	tmpl, err = template.ParseFiles("templates/index.html")
-	if err != nil {
-		log.Fatal(err)
-	}
+	tmpl = template.Must(template.ParseGlob("templates/*.html"))
+
 	artists, err = FetchArtists("https://groupietrackers.herokuapp.com/api/artists")
 	if err != nil {
 		log.Fatal(err)
@@ -83,6 +88,7 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", homeHandler)
 	mux.HandleFunc("/artists", artistsHandler)
+	mux.HandleFunc("/artist", artistHandler)
 
 	log.Println("starting server on :8080")
 	if err := http.ListenAndServe(":8080", mux); err != nil {
@@ -196,7 +202,7 @@ func homeHandler(w http.ResponseWriter, req *http.Request) {
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	if err := tmpl.Execute(w, artists); err != nil {
+	if err := tmpl.ExecuteTemplate(w, "index.html", artists); err != nil {
 		log.Printf("executing template: %v", err)
 	}
 }
@@ -214,5 +220,30 @@ func artistsHandler(w http.ResponseWriter, req *http.Request) {
 
 	for i, artist := range artists {
 		fmt.Fprintf(w, "%d %v\n", i, artist.Name)
+	}
+}
+
+func artistHandler(w http.ResponseWriter, req *http.Request) {
+	if req.Method != http.MethodGet {
+		http.Error(w, "405 method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	if req.URL.Path != "/artist" {
+		http.NotFound(w, req)
+		return
+	}
+
+	id := req.URL.Query().Get("id")
+	id_int, err := strconv.Atoi(id)
+	if err != nil {
+		http.Error(w, "error converting id", http.StatusBadRequest)
+		return
+	}
+	data := ArtistPageData{
+		ID: id_int,
+	}
+
+	if err := tmpl.ExecuteTemplate(w, "artist.html", data); err != nil {
+		log.Printf("executing template: %v", err)
 	}
 }
