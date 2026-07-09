@@ -86,7 +86,6 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", homeHandler)
-	mux.HandleFunc("/artists", artistsHandler)
 	mux.HandleFunc("/artist", artistHandler)
 
 	log.Println("starting server on :8080")
@@ -203,22 +202,6 @@ func homeHandler(w http.ResponseWriter, req *http.Request) {
 
 	if err := tmpl.ExecuteTemplate(w, "index.html", artists); err != nil {
 		log.Printf("executing template: %v", err)
-	}
-}
-
-func artistsHandler(w http.ResponseWriter, req *http.Request) {
-	if req.Method != http.MethodGet {
-		w.Header().Set("Allow", "GET")
-		http.Error(w, "405 method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-
-	fmt.Fprintln(w, "Artists page")
-
-	for i, artist := range artists {
-		fmt.Fprintf(w, "%d %v\n", i, artist.Name)
 	}
 }
 
