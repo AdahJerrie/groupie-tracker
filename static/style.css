@@ -1,0 +1,272 @@
+/* ==========================================================================
+   1. VARIABLES & DESIGN TOKENS
+   ========================================================================== */
+@import url('https://googleapis.com');
+
+:root {
+    /* Color Palette (Spotify/Apple Music-inspired dark theme) */
+    --bg-primary: #0f0f11;
+    --bg-surface: #1a1a1e;
+    --bg-surface-hover: #242429;
+    --text-main: #f3f4f6;
+    --text-muted: #9ca3af;
+    --accent-color: #1db954; /* Spotify green, change to #00f2fe for teal or #fbbf24 for gold */
+    --accent-glow: rgba(29, 185, 84, 0.15);
+    --border-color: rgba(255, 255, 255, 0.08);
+
+    /* Typography & Layout */
+    --font-main: 'Poppins', system-ui, -apple-system, sans-serif;
+    --max-width: 1200px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --transition-smooth: all 0.3s ease;
+}
+
+/* ==========================================================================
+   2. GLOBAL RESET & BASE STYLES
+   ========================================================================== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-main);
+    font-family: var(--font-main);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Container limits width and centers the content on wide screens */
+main {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+}
+
+/* ==========================================================================
+   3. HEADER STYLES (Shared across pages)
+   ========================================================================== */
+header {
+    background: linear-gradient(180deg, rgba(0,0,0,0.5) 0%, transparent 100%);
+    padding: 3rem 1.5rem 2rem;
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    margin-bottom: 0.5rem;
+}
+
+header p {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    font-weight: 400;
+}
+
+/* Back Link specifically inside the detail page header */
+header a[href="/"] {
+    display: inline-block;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    transition: var(--transition-smooth);
+}
+
+header a[href="/"]:hover {
+    color: var(--accent-color);
+    transform: translateX(-4px);
+}
+
+/* ==========================================================================
+   4. HOME PAGE (Artist Grid & Cards)
+   ========================================================================== */
+/* Grid container targeting the main <ul> on the index page */
+main > ul:not(:has(strong)) {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.5rem;
+    list-style: none;
+}
+
+/* Individual artist cards */
+main > ul:not(:has(strong)) li {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    transition: var(--transition-smooth);
+}
+
+/* Hover lift and glow effect */
+main > ul:not(:has(strong)) li:hover {
+    background-color: var(--bg-surface-hover);
+    transform: translateY(-5px);
+    border-color: var(--accent-color);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 0 15px var(--accent-glow);
+}
+
+/* Links inside cards formatting */
+main > ul:not(:has(strong)) li a {
+    color: var(--text-main);
+    text-decoration: none;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    transition: var(--transition-smooth);
+}
+
+main > ul:not(:has(strong)) li:hover a {
+    color: var(--accent-color);
+}
+
+/* Muted year text inside cards */
+main > ul:not(:has(strong)) li span {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+}
+
+/* ==========================================================================
+   5. ARTIST DETAIL PAGE STYLES
+   ========================================================================== */
+/* Meta paragraph styling (Founded / First Album) */
+main p:has(.label) {
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+}
+
+/* Highlighted labels for metadata */
+.label {
+    color: var(--accent-color);
+    font-weight: 600;
+    margin-right: 0.5rem;
+}
+
+/* Sub-sections layout on details page */
+h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-top: 2.5rem;
+    margin-bottom: 1.2rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--border-color);
+    position: relative;
+}
+
+/* Sleek bottom accent bar under headings */
+h2::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 40px;
+    height: 2px;
+    background-color: var(--accent-color);
+}
+
+/* Shared structural style for simple lists on detail page */
+main > ul {
+    list-style: none;
+    margin-bottom: 2rem;
+}
+
+/* Members plain list items */
+main > h2 + ul:not(:has(strong)) li {
+    padding: 0.5rem 0;
+    font-size: 1.05rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+/* Concert Dates container layout */
+main > ul:has(strong) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* Concert Dates interactive list row items */
+main > ul:has(strong) li {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+@media (min-width: 640px) {
+    main > ul:has(strong) li {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+}
+
+/* Concert Location pill tag design */
+main > ul:has(strong) li strong {
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.075em;
+    color: var(--text-main);
+    background-color: rgba(255, 255, 255, 0.06);
+    padding: 0.25rem 0.75rem;
+    border-radius: 50px;
+    border: 1px solid var(--border-color);
+}
+
+
+/* ==========================================================================
+   6. ARTIST IMAGES (Grid & Details)
+   ========================================================================== */
+
+/* Home page card image rules */
+.card-image {
+    width: 100%;
+    aspect-ratio: 1 / 1;          /* Keeps image perfectly square like an album cover */
+    object-fit: cover;            /* Prevents stretching/distortion */
+    border-radius: var(--radius-md);
+    margin-bottom: 1.25rem;
+    border: 1px solid var(--border-color);
+    transition: var(--transition-smooth);
+}
+
+/* Enhances card hover by scaling up the image slightly inside the card */
+main > ul:not(:has(strong)) li:hover .card-image {
+    transform: scale(1.03);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Artist detail page banner style */
+.detail-hero-image {
+    width: 100%;
+    max-width: 400px;             /* Keeps the hero profile picture well proportioned */
+    height: auto;
+    aspect-ratio: 16 / 10;        /* Modern wide-aspect crop */
+    object-fit: cover;
+    display: block;
+    margin: 0 auto 2rem auto;     /* Centers the hero image */
+    border-radius: var(--radius-lg);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 30px var(--accent-glow);
+    border: 1px solid var(--border-color);
+}
+
+/* Adjust layout on wide monitors so text flows cleanly below the hero */
+@media (min-width: 768px) {
+    .detail-hero-image {
+        max-width: 500px;
+    }
+}

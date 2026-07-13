@@ -4,14 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Groupie Trackers</title>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <h1>welcome to Groupie Trackers</h1>
-    <ul>
-        {{ range . }}
-        <li><a href="/artist?id={{ .ID }}">{{ .Name }}</a>(since {{ .CreationDate }})</li>
-        {{end}}
-    </ul>
+    <header>
+        <h1>Groupie Trackers</h1>
+        <p>Discover your favourite artists, and check out what they're up to!</p>
+    </header>
+    
+    
+    <main>
+        <ul>
+            {{ range . }}
+                <li>
+                    <img src="{{.Image}}" alt="{{.Name}}" class="card-image">
+                    <a href="/artist?id={{.ID}}">{{.Name}}</a>
+                    <span>(since {{.CreationDate}})</span>
+                </li>
+            {{end}}
+        </ul> 
+    </main>
+
     
 </body>
 </html>
